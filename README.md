@@ -42,7 +42,22 @@ pnpm add -g afrihub-cli
 afrihub --help
 ```
 
-**Windows Users Note:** If you encounter any issues with the CLI not being recognized, ensure your npm global bin directory is in your PATH. You can check this by running `npm config get prefix` and adding that directory to your system PATH.
+**Windows Users Note:** If you encounter any issues with the CLI not being recognized:
+
+1. **If `afrihub --help` opens VSCode instead of running the command:**
+   - This means the CLI isn't properly linked. Try running: `npm uninstall -g afrihub-cli && npm install -g afrihub-cli`
+   - Or manually add the npm global bin directory to your PATH: `npm config get prefix`
+
+2. **If the command is not found:**
+   - Ensure your npm global bin directory is in your PATH
+   - You can check this by running `npm config get prefix` and adding that directory to your system PATH
+   - Restart your terminal after making PATH changes
+
+3. **Alternative installation:**
+   ```bash
+   # Use npx if global installation doesn't work
+   npx afrihub-cli --help
+   ```
 
 ## Usage:
 
@@ -1786,6 +1801,483 @@ curl -X POST "http://localhost:3000/api/telco/ussd/5ca27577-3574-45f2-8055-a4829
 - **Back Navigation**: Full back navigation support throughout USSD flows
 - **Error Handling**: Comprehensive error messages with retry options
 - **Realistic Responses**: Authentic USSD menu structures and service flows
+
+---
+
+## 🔌 Using AfriHub in Your Frontend Project
+
+AfriHub CLI is designed to be integrated into your frontend projects as a local backend service. Here's how to set it up:
+
+### **Quick Integration**
+
+#### **Step 1: Install AfriHub CLI**
+
+**Using npm:**
+```bash
+# Install globally (recommended)
+npm install -g afrihub-cli
+
+# Or install as a dev dependency in your project
+npm install --save-dev afrihub-cli
+```
+
+**Using yarn:**
+```bash
+# Install globally
+yarn global add afrihub-cli
+
+# Or install as a dev dependency
+yarn add --dev afrihub-cli
+```
+
+**Using pnpm:**
+```bash
+# Install globally
+pnpm add -g afrihub-cli
+
+# Or install as a dev dependency
+pnpm add -D afrihub-cli
+```
+
+**Using bun:**
+```bash
+# Install globally
+bun add -g afrihub-cli
+
+# Or install as a dev dependency
+bun add --dev afrihub-cli
+```
+
+#### **Step 2: Install Concurrently (for running both servers)**
+
+**Using npm:**
+```bash
+npm install --save-dev concurrently wait-on
+```
+
+**Using yarn:**
+```bash
+yarn add --dev concurrently wait-on
+```
+
+**Using pnpm:**
+```bash
+pnpm add -D concurrently wait-on
+```
+
+**Using bun:**
+```bash
+bun add --dev concurrently wait-on
+```
+
+#### **Step 3: Update Your package.json Scripts**
+
+Add these scripts to your frontend project's `package.json`:
+
+**For React/Create React App:**
+```json
+{
+  "scripts": {
+    "dev": "concurrently \"afrihub start --port 3001\" \"react-scripts start\"",
+    "start": "concurrently \"afrihub start --port 3001\" \"react-scripts start\"",
+    "backend": "afrihub start --port 3001",
+    "frontend": "react-scripts start"
+  }
+}
+```
+
+**For Vite + React:**
+```json
+{
+  "scripts": {
+    "dev": "concurrently \"afrihub start --port 3001\" \"vite\"",
+    "start": "concurrently \"afrihub start --port 3001\" \"vite\"",
+    "backend": "afrihub start --port 3001",
+    "frontend": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}
+```
+
+**For Next.js:**
+```json
+{
+  "scripts": {
+    "dev": "concurrently \"afrihub start --port 3001\" \"next dev\"",
+    "backend": "afrihub start --port 3001",
+    "frontend": "next dev"
+  }
+}
+```
+
+**For Vue.js:**
+```json
+{
+  "scripts": {
+    "dev": "concurrently \"afrihub start --port 3001\" \"npm run serve\"",
+    "backend": "afrihub start --port 3001",
+    "frontend": "vue-cli-service serve"
+  }
+}
+```
+
+**For Angular:**
+```json
+{
+  "scripts": {
+    "start": "concurrently \"afrihub start --port 3001\" \"ng serve\"",
+    "backend": "afrihub start --port 3001",
+    "frontend": "ng serve"
+  }
+}
+```
+
+#### **Step 4: Start Development**
+
+**Using npm:**
+```bash
+npm run dev
+# or
+npm start
+```
+
+**Using yarn:**
+```bash
+yarn dev
+# or
+yarn start
+```
+
+**Using pnpm:**
+```bash
+pnpm dev
+# or
+pnpm start
+```
+
+**Using bun:**
+```bash
+bun dev
+# or
+bun start
+```
+
+This will start:
+- **AfriHub API Server**: `http://localhost:3001`
+- **Your Frontend**: `http://localhost:3000` (or your configured port)
+
+---
+
+### **API Integration Examples**
+
+#### **JavaScript/Fetch API**
+```javascript
+const API_BASE = 'http://localhost:3001/api';
+
+// Translation API
+const translateText = async (text, from = 'en', to = 'yo') => {
+  const response = await fetch(`${API_BASE}/translation`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, from, to })
+  });
+  return response.json();
+};
+
+// Weather API
+const getWeather = async (city) => {
+  const response = await fetch(`${API_BASE}/weather/${city}`);
+  return response.json();
+};
+
+// Currency API
+const convertCurrency = async (from, to, amount) => {
+  const response = await fetch(`${API_BASE}/currency/convert?from=${from}&to=${to}&amount=${amount}`);
+  return response.json();
+};
+
+// Banking API
+const getBankInfo = async (bankCode) => {
+  const response = await fetch(`${API_BASE}/banking/${bankCode}`);
+  return response.json();
+};
+
+// Mock Data API
+const generateMockData = async (type, count = 10, region = 'nigeria') => {
+  const response = await fetch(`${API_BASE}/mock/${type}?count=${count}&region=${region}`);
+  return response.json();
+};
+```
+
+#### **React Hook Example**
+```javascript
+// hooks/useAfriHub.js
+import { useState, useCallback } from 'react';
+
+export const useAfriHub = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const apiCall = useCallback(async (endpoint, options = {}) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`http://localhost:3001/api${endpoint}`, {
+        headers: { 'Content-Type': 'application/json' },
+        ...options
+      });
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const data = await response.json();
+      setLoading(false);
+      return data;
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  const translate = useCallback((text, from, to) => 
+    apiCall('/translation', {
+      method: 'POST',
+      body: JSON.stringify({ text, from, to })
+    }), [apiCall]);
+
+  const getWeather = useCallback((city) => 
+    apiCall(`/weather/${city}`), [apiCall]);
+
+  return { translate, getWeather, loading, error };
+};
+
+// Usage in component
+function MyComponent() {
+  const { translate, loading, error } = useAfriHub();
+  const [translation, setTranslation] = useState('');
+
+  const handleTranslate = async () => {
+    try {
+      const result = await translate('Hello world', 'en', 'yo');
+      setTranslation(result.data.translatedText);
+    } catch (err) {
+      console.error('Translation failed:', err);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleTranslate} disabled={loading}>
+        {loading ? 'Translating...' : 'Translate to Yoruba'}
+      </button>
+      {error && <p>Error: {error}</p>}
+      {translation && <p>Translation: {translation}</p>}
+    </div>
+  );
+}
+```
+
+---
+
+### **Available API Endpoints**
+
+| Category | Endpoint | Method | Description |
+|----------|----------|--------|-------------|
+| **Translation** | `/api/translation` | POST | Translate text between 20+ African languages |
+| **Weather** | `/api/weather/:city` | GET | Weather data for 100+ African cities |
+| **Weather Forecast** | `/api/weather/:city/forecast` | GET | 5-day ML-powered weather forecast |
+| **Banking** | `/api/banking/:bank` | GET | Bank information and operations |
+| **Banking USSD** | `/api/banking/:bank/ussd/start` | POST | Start USSD banking session |
+| **Currency** | `/api/currency/convert` | GET | Convert between 40+ currencies |
+| **Currency Bulk** | `/api/currency/convert/bulk` | POST | Bulk currency conversions |
+| **Telco** | `/api/telco/ussd` | POST | Start telecom USSD session |
+| **Mock Data** | `/api/mock/:type` | GET | Generate African mock datasets |
+
+**Full API Documentation**: Visit `http://localhost:3001/api/docs` when AfriHub is running.
+
+---
+
+### **Deployment Strategies**
+
+#### **Development (Local)**
+```bash
+# Your team runs this locally
+npm run dev    # Starts both AfriHub + Frontend
+yarn dev       # Using yarn
+pnpm dev       # Using pnpm  
+bun dev        # Using bun
+```
+
+#### **Production/Sharing Options**
+
+**Option 1: Instructions for Users**
+```markdown
+## Running This Project
+
+1. Install AfriHub CLI globally:
+   ```bash
+   # Using npm
+   npm install -g afrihub-cli
+   
+   # Using yarn
+   yarn global add afrihub-cli
+   
+   # Using pnpm
+   pnpm add -g afrihub-cli
+   
+   # Using bun
+   bun add -g afrihub-cli
+   ```
+
+2. Start the project:
+   ```bash
+   npm run dev    # Using npm
+   yarn dev       # Using yarn
+   pnpm dev       # Using pnpm
+   bun dev        # Using bun
+   ```
+
+3. Visit: http://localhost:3000
+```
+
+**Option 2: Docker Setup** (Advanced)
+```dockerfile
+# Dockerfile for AfriHub server
+FROM node:18
+RUN npm install -g afrihub-cli
+EXPOSE 3001
+CMD ["afrihub", "start", "--port", "3001", "--host", "0.0.0.0"]
+```
+
+**Option 3: Deploy AfriHub Separately**
+Deploy AfriHub to Heroku/Railway/DigitalOcean:
+```json
+{
+  "name": "my-afrihub-server",
+  "scripts": {
+    "start": "afrihub start --port $PORT --host 0.0.0.0"
+  },
+  "dependencies": {
+    "afrihub-cli": "^0.2.1"
+  }
+}
+```
+
+Then update your frontend to use the deployed URL:
+```javascript
+const API_BASE = process.env.NODE_ENV === 'production' 
+  ? 'https://your-afrihub-server.herokuapp.com/api'
+  : 'http://localhost:3001/api';
+```
+
+---
+
+### **Environment Configuration**
+
+Create a `.env` file in your project:
+
+```bash
+# Development
+REACT_APP_AFRIHUB_URL=http://localhost:3001
+REACT_APP_AFRIHUB_API_URL=http://localhost:3001/api
+
+# Production (when you deploy AfriHub separately)
+# REACT_APP_AFRIHUB_URL=https://your-afrihub-server.com
+# REACT_APP_AFRIHUB_API_URL=https://your-afrihub-server.com/api
+```
+
+Use in your code:
+```javascript
+const API_BASE = process.env.REACT_APP_AFRIHUB_API_URL || 'http://localhost:3001/api';
+```
+
+---
+
+### **Example Use Cases**
+
+#### **Fintech App**
+```javascript
+// Check bank balance
+const balance = await fetch(`${API_BASE}/banking/gtb/balance`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ accountNumber: '0123456789' })
+});
+
+// Convert currency
+const rate = await fetch(`${API_BASE}/currency/convert?from=USD&to=NGN&amount=100`);
+```
+
+#### **Translation App**
+```javascript
+// Translate to multiple African languages
+const languages = ['yo', 'sw', 'ha', 'zu', 'am'];
+const translations = await Promise.all(
+  languages.map(lang => 
+    fetch(`${API_BASE}/translation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: 'Hello world', from: 'en', to: lang })
+    }).then(r => r.json())
+  )
+);
+```
+
+#### **Weather Dashboard**
+```javascript
+// Get weather for multiple African cities
+const cities = ['lagos', 'nairobi', 'cape town', 'accra'];
+const weatherData = await Promise.all(
+  cities.map(city => 
+    fetch(`${API_BASE}/weather/${city}`).then(r => r.json())
+  )
+);
+```
+
+#### **Mock Data for Testing**
+```javascript
+// Generate test data for your app
+const mockUsers = await fetch(`${API_BASE}/mock/names?count=50&region=nigeria`);
+const mockPhones = await fetch(`${API_BASE}/mock/phones?count=50&region=kenya`);
+const mockAddresses = await fetch(`${API_BASE}/mock/addresses?count=20&region=ghana`);
+```
+
+---
+
+### **Troubleshooting**
+
+#### **Common Issues:**
+
+**1. AfriHub not starting:**
+```bash
+# Check if AfriHub is installed
+afrihub --version
+
+# If not installed:
+npm install -g afrihub-cli
+```
+
+**2. Port conflicts:**
+```bash
+# Use different port
+afrihub start --port 3002
+```
+
+**3. CORS issues:**
+AfriHub automatically handles CORS for local development. If you encounter issues, ensure you're using `http://localhost:3001` (not `127.0.0.1`).
+
+**4. API not responding:**
+```bash
+# Check if AfriHub is running
+curl http://localhost:3001/health
+
+# Check API documentation
+open http://localhost:3001/api/docs
+```
+
+---
 
 ## Development:
 
