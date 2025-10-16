@@ -1814,38 +1814,26 @@ AfriHub CLI is designed to be integrated into your frontend projects as a local 
 
 **Using npm:**
 ```bash
-# Install globally (recommended)
-npm install -g afrihub-cli
-
-# Or install as a dev dependency in your project
-npm install --save-dev afrihub-cli
+# Install into your project as a dependency
+npm install afrihub-cli
 ```
 
 **Using yarn:**
 ```bash
-# Install globally
-yarn global add afrihub-cli
-
-# Or install as a dev dependency
-yarn add --dev afrihub-cli
+# Install into your project as a dependency
+yarn add afrihub-cli
 ```
 
 **Using pnpm:**
 ```bash
-# Install globally
-pnpm add -g afrihub-cli
-
-# Or install as a dev dependency
-pnpm add -D afrihub-cli
+# Install into your project as a dependency
+pnpm add afrihub-cli
 ```
 
 **Using bun:**
 ```bash
-# Install globally
-bun add -g afrihub-cli
-
-# Or install as a dev dependency
-bun add --dev afrihub-cli
+# Install into your project as a dependency
+bun add afrihub-cli 
 ```
 
 #### **Step 2: Install Concurrently (for running both servers)**
